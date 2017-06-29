@@ -1,62 +1,30 @@
 package com.example;
 
-import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.server.handler.AbstractHandler;
+import org.eclipse.jetty.servlet.ServletHandler;
 
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.io.PrintWriter;
+/**
+ * In this example, we will show how to use Jetty HTTP server in embedded mode.
+ * Embedded mode means that the server shipped together with the application as opposed of deploying the application on external Jetty server.
+ *
+ * It means the if in non-embedded approach your webapp built into WAR file which deployed to some server, in embedded Jetty, you write a web application and instantiate jetty server in the same code base.
+ *
+ */
+public class EmbeddedJettyJavaServerExample {
 
+    public static void main(String... args) throws Exception {
 
-public class EbmeddedJettyJavaServerExample {
+        //Running Jetty HTTP server on port 8080. When started, can be accessed from http://localhost:8080/
+        Server server = new Server(8080);
 
-    public static void main(String[] args) {
-        Server server = new Server(8680);
-        try {
-            server.setHandler(new HelloHandler());
-            server.start();
-            server.dumpStdErr();
-            server.join();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
+        // ServletHandler is the one who handles Servlets in Jetty, Servlets are the standard way to provide application logic that handles HTTP requests.
+        // So, here we specifying that we want to use BasicHelloServlet to handle our http requests by attaching it to ServletHandler.
+        ServletHandler servletHandler = new ServletHandler();
+        server.setHandler(servletHandler);
+        servletHandler.addServletWithMapping(BasicHelloServlet.class, "/validUrl");
 
-    public static class HelloHandler extends AbstractHandler {
-
-        public HelloHandler() {
-            this("Hello Java Code Geeks - First Handler");
-        }
-
-        public HelloHandler(String arg) {
-            this(arg, null);
-        }
-
-        public HelloHandler(String arg1, String arg2){
-            this.greetmessage = arg1;
-            this.bodymessage = arg2;
-        }
-        public void handle(String target, Request baseRequest, HttpServletRequest request,
-                           HttpServletResponse response) throws IOException, ServletException {
-            response.setContentType("text/html; charset=utf-8");
-            response.setStatus(HttpServletResponse.SC_OK);
-
-            PrintWriter out = response.getWriter();
-
-            out.println(greetmessage);
-            if(bodymessage != null){
-                out.println(bodymessage);
-            }
-
-            baseRequest.setHandled(true);
-
-        }
-
-        final String greetmessage;
-        final String bodymessage;
-
+        // Starting Jetty server.
+        server.start();
+        server.join();
     }
 }
